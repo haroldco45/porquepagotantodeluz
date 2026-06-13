@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>¿Por qué pago tanto de luz? — Calculadora CU Colombia</title>
+<meta name="description" content="Entiende y calcula tu tarifa de energía eléctrica en Colombia usando la fórmula oficial CU del regulador CREG. Desarrollada por Vibras Positivas HM."/>
+<meta property="og:title" content="¿Por qué pago tanto de luz?"/>
+<meta property="og:description" content="Calculadora oficial CU de energía eléctrica en Colombia. Descubre qué parte de tu recibo va a qué."/>
+<meta property="og:image" content="https://via.placeholder.com/1200x630/0a0f1e/FFD700?text=%C2%BFPor+qu%C3%A9+pago+tanto+de+luz%3F"/>
+<meta property="og:url" content="https://vibraspositivashm.com"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0a0f1e"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@400;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:        #0a0f1e;
+    --panel:     #0e1628;
+    --border:    #1e2d50;
+    --accent:    #FFD700;
+    --accent2:   #00e5ff;
+    --danger:    #ff3d3d;
+    --text:      #c8d8f0;
+    --text-dim:  #5a7090;
+    --mono:      'Share Tech Mono', monospace;
+    --sans:      'Barlow', sans-serif;
+    --cond:      'Barlow Condensed', sans-serif;
+    --G:  #4ade80;
+    --T:  #60a5fa;
+    --D:  #f97316;
+    --Cv: #a78bfa;
+    --PR: #f43f5e;
+    --R:  #94a3b8;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID SCANLINES */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,229,255,0.015) 2px, rgba(0,229,255,0.015) 4px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: fixed; inset: 0; z-index: 999;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1.2rem;
+    transition: opacity .5s ease;
+  }
+  #splash.hide { opacity: 0; pointer-events: none; }
+  .splash-bolt {
+    font-size: 5rem; animation: pulse 1s infinite alternate;
+  }
+  @keyframes pulse { from { text-shadow: 0 0 10px var(--accent); } to { text-shadow: 0 0 40px var(--accent), 0 0 80px #ff9900; } }
+  .splash-title { font-family: var(--cond); font-size: 1.8rem; font-weight: 900; color: var(--accent); text-align: center; letter-spacing: .05em; }
+  .splash-sub { font-family: var(--mono); font-size: .75rem; color: var(--accent2); }
+  .splash-bar { width: 200px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .splash-bar-fill { height: 100%; width: 0%; background: var(--accent); animation: load 1.8s ease forwards; }
+  @keyframes load { to { width: 100%; } }
+  .splash-brand { font-size: .65rem; color: var(--text-dim); margin-top: .5rem; }
+
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 1;
+    padding: 1.5rem 1.2rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #060c1a 0%, transparent 100%);
+  }
+  .header-eyebrow {
+    font-family: var(--mono); font-size: .65rem; color: var(--accent2);
+    letter-spacing: .15em; text-transform: uppercase; margin-bottom: .4rem;
+  }
+  h1 {
+    font-family: var(--cond); font-weight: 900;
+    font-size: clamp(1.8rem, 7vw, 2.8rem);
+    line-height: 1; color: #fff;
+  }
+  h1 span { color: var(--accent); }
+  .header-sub { font-size: .85rem; color: var(--text-dim); margin-top: .5rem; max-width: 500px; }
+
+  /* FORMULA DISPLAY */
+  .formula-box {
+    position: relative; z-index: 1;
+    margin: 1.2rem 1.2rem 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+  }
+  .formula-label { font-family: var(--mono); font-size: .6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .12em; margin-bottom: .5rem; }
+  .formula-eq {
+    font-family: var(--mono);
+    font-size: clamp(.8rem, 3vw, 1.1rem);
+    white-space: nowrap;
+    color: #fff;
+    display: flex; align-items: center; flex-wrap: wrap; gap: .3rem;
+  }
+  .fe-cu { color: var(--accent); font-weight: bold; }
+  .fe-g  { color: var(--G); }
+  .fe-t  { color: var(--T); }
+  .fe-d  { color: var(--D); }
+  .fe-cv { color: var(--Cv); }
+  .fe-pr { color: var(--PR); }
+  .fe-r  { color: var(--R); }
+  .fe-op { color: var(--text-dim); }
+
+  /* ── MAIN ── */
+  main { position: relative; z-index: 1; padding: 1.2rem; display: flex; flex-direction: column; gap: 1.2rem; max-width: 700px; margin: 0 auto; }
+
+  /* TABS */
+  .tabs { display: flex; gap: .4rem; }
+  .tab {
+    flex: 1; padding: .55rem .5rem;
+    font-family: var(--cond); font-weight: 700; font-size: .85rem; text-transform: uppercase; letter-spacing: .05em;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-dim); cursor: pointer; transition: all .2s;
+  }
+  .tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  .tab-panel { display: none; flex-direction: column; gap: 1rem; }
+  .tab-panel.active { display: flex; }
+
+  /* CARD */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+  }
+  .card-title {
+    font-family: var(--cond); font-size: 1rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em; color: var(--accent2);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: .4rem;
+  }
+
+  /* INPUT */
+  .input-group { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .8rem; }
+  label { font-size: .75rem; color: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+  input[type=number], select {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    color: #fff; font-family: var(--mono); font-size: 1rem; padding: .55rem .7rem;
+    width: 100%; outline: none; transition: border-color .2s;
+    -moz-appearance: textfield;
+  }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus, select:focus { border-color: var(--accent); }
+  .hint { font-size: .68rem; color: var(--text-dim); font-family: var(--mono); }
+
+  /* STRATO BAR */
+  .strato-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; }
+  .strato-num {
+    font-family: var(--cond); font-size: 1.8rem; font-weight: 900;
+    color: var(--accent); min-width: 2rem; text-align: center;
+  }
+  .strato-desc { font-size: .8rem; color: var(--text-dim); }
+
+  /* BTN */
+  .btn {
+    width: 100%; padding: .9rem; border: none; border-radius: 6px;
+    font-family: var(--cond); font-size: 1.1rem; font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
+    cursor: pointer; transition: all .2s;
+    background: var(--accent); color: #000;
+  }
+  .btn:hover { background: #ffe54d; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-sec { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-sec:hover { border-color: var(--accent2); color: var(--accent2); background: transparent; }
+
+  /* RESULTADO */
+  #resultado { display: none; }
+  #resultado.show { display: flex; flex-direction: column; gap: 1rem; }
+
+  .result-total {
+    text-align: center;
+    background: linear-gradient(135deg, #0e1628 0%, #131f3a 100%);
+    border: 1px solid var(--accent);
+    border-radius: 8px; padding: 1.5rem 1rem;
+  }
+  .result-label { font-family: var(--mono); font-size: .65rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-dim); margin-bottom: .3rem; }
+  .result-value { font-family: var(--cond); font-size: 3.5rem; font-weight: 900; color: var(--accent); line-height: 1; }
+  .result-unit { font-family: var(--mono); font-size: .75rem; color: var(--text-dim); }
+  .result-total-cop { font-family: var(--cond); font-size: 1.6rem; font-weight: 700; color: #fff; margin-top: .4rem; }
+
+  /* BREAKDOWN BARS */
+  .breakdown { display: flex; flex-direction: column; gap: .6rem; }
+  .bk-item { display: flex; flex-direction: column; gap: .25rem; }
+  .bk-header { display: flex; justify-content: space-between; align-items: baseline; }
+  .bk-name { font-family: var(--cond); font-size: .9rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .bk-pct { font-family: var(--mono); font-size: .75rem; color: var(--text-dim); }
+  .bk-cop { font-family: var(--mono); font-size: .8rem; }
+  .bk-bar-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bk-bar { height: 100%; border-radius: 3px; transition: width .8s cubic-bezier(.22,1,.36,1); width: 0%; }
+  .bk-explain { font-size: .72rem; color: var(--text-dim); line-height: 1.4; }
+
+  /* EXPLICADOR tab */
+  .comp-grid { display: flex; flex-direction: column; gap: .8rem; }
+  .comp-card {
+    border-left: 3px solid; border-radius: 0 6px 6px 0;
+    background: var(--panel); padding: .8rem 1rem;
+  }
+  .comp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .3rem; }
+  .comp-sigla { font-family: var(--mono); font-size: 1.1rem; font-weight: bold; }
+  .comp-pct-badge {
+    font-family: var(--cond); font-size: .9rem; font-weight: 700;
+    padding: .1rem .5rem; border-radius: 20px;
+    background: rgba(255,255,255,.08); color: #fff;
+  }
+  .comp-full { font-family: var(--cond); font-weight: 700; font-size: .95rem; color: #fff; margin-bottom: .3rem; }
+  .comp-desc { font-size: .78rem; color: var(--text-dim); line-height: 1.5; }
+  .comp-chichi { font-size: .78rem; font-style: italic; margin-top: .3rem; }
+
+  /* COMPARTIR */
+  .share-row { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .share-btn {
+    flex: 1; min-width: 120px; padding: .6rem .8rem;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--panel); color: var(--text);
+    font-family: var(--cond); font-size: .85rem; font-weight: 700; text-transform: uppercase;
+    cursor: pointer; transition: all .2s; text-align: center;
+  }
+  .share-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 1.2rem;
+    font-family: var(--mono); font-size: .6rem; color: var(--text-dim);
+    border-top: 1px solid var(--border); margin-top: 1rem;
+  }
+  footer a { color: var(--text-dim); text-decoration: none; }
+
+  /* INDICADOR OFFLINE */
+  .offline-badge {
+    display: none; position: fixed; bottom: 1rem; right: 1rem;
+    background: var(--danger); color: #fff;
+    font-family: var(--mono); font-size: .65rem; padding: .3rem .7rem;
+    border-radius: 20px; z-index: 100;
+  }
+  body.offline .offline-badge { display: block; }
+
+  @media (min-width: 500px) {
+    .strato-select { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .strato-select label { flex: 1; min-width: 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-bolt">⚡</div>
+  <div class="splash-title">¿Por qué pago tanto de luz?</div>
+  <div class="splash-sub">Calculadora CU — CREG Colombia</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  <div class="splash-brand">Vibras Positivas HM</div>
+</div>
+
+<div class="offline-badge">📡 Sin conexión</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-eyebrow">⚡ Regulación CREG — Fórmula Oficial</div>
+  <h1>¿Por qué pago<br/><span>tanto de luz?</span></h1>
+  <p class="header-sub">Calcula y entiende tu tarifa usando la fórmula oficial del Costo Unitario (CU) de energía en Colombia.</p>
+</header>
+
+<!-- FORMULA -->
+<div class="formula-box">
+  <div class="formula-label">Fórmula CU — CREG Res. 119/2007 y concordantes</div>
+  <div class="formula-eq">
+    <span class="fe-cu">CU</span>
+    <span class="fe-op">=</span>
+    <span class="fe-g">G</span>
+    <span class="fe-op">+</span>
+    <span class="fe-t">T</span>
+    <span class="fe-op">+</span>
+    <span class="fe-d">D</span>
+    <span class="fe-op">+</span>
+    <span class="fe-cv">Cv</span>
+    <span class="fe-op">+</span>
+    <span class="fe-pr">PR</span>
+    <span class="fe-op">+</span>
+    <span class="fe-r">R</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('calcular')">⚡ Calcular</button>
+    <button class="tab" onclick="switchTab('explicar')">📖 Explicador</button>
+  </div>
+
+  <!-- TAB CALCULAR -->
+  <div class="tab-panel active" id="tab-calcular">
+
+    <div class="card">
+      <div class="card-title">📋 Datos de tu recibo</div>
+
+      <div class="input-group">
+        <label>Consumo del mes (kWh)</label>
+        <input type="number" id="kwh" placeholder="Ej: 180" min="1" max="9999"/>
+        <span class="hint">Lo encuentras en tu factura como "Consumo activa"</span>
+      </div>
+
+      <div class="input-group">
+        <label>Estrato socioeconómico</label>
+        <select id="estrato">
+          <option value="1">Estrato 1 — Subsidio 60%</option>
+          <option value="2">Estrato 2 — Subsidio 50%</option>
+          <option value="3" selected>Estrato 3 — Subsidio 15%</option>
+          <option value="4">Estrato 4 — Tarifa plena (0%)</option>
+          <option value="5">Estrato 5 — Contribución +20%</option>
+          <option value="6">Estrato 6 — Contribución +20%</option>
+          <option value="I">Industrial / Comercial</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Departamento / Operador</label>
+        <select id="operador">
+          <option value="EPM">Antioquia — EPM</option>
+          <option value="AFINIA" selected>Bolívar / Córdoba / Sucre — Afinia</option>
+          <option value="CELSIA">Valle / Cauca — Celsia</option>
+          <option value="ENERCA">Casanare — Enerca</option>
+          <option value="CHEC">Caldas — CHEC</option>
+          <option value="CENS">Norte de Santander — Cens</option>
+          <option value="ELECTROHUILA">Huila — Electrohuila</option>
+          <option value="EMCALI">Cali — Emcali</option>
+          <option value="ESSA">Santander — Essa</option>
+          <option value="ENEL">Cundinamarca / Bogotá — Enel</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="calcular()">⚡ Calcular mi tarifa</button>
+    </div>
+
+    <!-- RESULTADO -->
+    <div id="resultado">
+      <div class="result-total">
+        <div class="result-label">Costo Unitario Estimado</div>
+        <div class="result-value" id="r-cu">—</div>
+        <div class="result-unit">$/kWh (pesos colombianos)</div>
+        <div class="result-total-cop" id="r-total">—</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Así se distribuye tu pago</div>
+        <div class="breakdown" id="breakdown-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💬 En palabras sencillas</div>
+        <p id="resumen-texto" style="font-size:.85rem;line-height:1.7;color:var(--text)"></p>
+      </div>
+
+      <div class="share-row">
+        <button class="share-btn" onclick="compartirWA()">📲 WhatsApp</button>
+        <button class="share-btn" onclick="copiarTexto()">📋 Copiar</button>
+        <button class="share-btn btn-sec" onclick="resetear()">🔄 Recalcular</button>
+      </div>
+    </div>
+
+  </div><!-- /tab-calcular -->
+
+  <!-- TAB EXPLICADOR -->
+  <div class="tab-panel" id="tab-explicar">
+    <div class="card">
+      <div class="card-title">🎓 ¿Qué es cada componente?</div>
+      <div class="comp-grid" id="comp-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🤔 Preguntas frecuentes</div>
+      <div id="faq-list" style="display:flex;flex-direction:column;gap:.8rem;"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Desarrollada por Vibras Positivas HM — Derechos de Autor Reservados<br/>
+  <a href="https://vibraspositivashm.com">vibraspositivashm.com</a> · Caucasia, Antioquia · 2026<br/>
+  Valores estimados. Verifica con tu operador de red. CREG Res. 119/2007.
+</footer>
+
+<script>
+// ─── DATOS ───────────────────────────────────────────────────────────
+const COMPONENTES = [
+  { key:'G',  nombre:'Generación',      pct:30, color:'var(--G)',  sigla:'G',
+    desc:'El costo de producir la energía: hidroeléctricas, termoeléctricas, eólicas y solares. Es el "ingrediente" de la luz.',
+    chichi:'El pago pa\' que exista la luz. Sin esto, oscuridad total, parce.' },
+  { key:'T',  nombre:'Transmisión',     pct:7,  color:'var(--T)',  sigla:'T',
+    desc:'Las líneas de alta tensión que transportan la energía por todo el país, desde donde se genera hasta tu ciudad.',
+    chichi:'El peaje de los cables gruesos que atraviesan Colombia de punta a punta.' },
+  { key:'D',  nombre:'Distribución',    pct:40, color:'var(--D)',  sigla:'D',
+    desc:'Los postes, cables y transformadores de tu barrio. El componente más costoso porque hay mucha infraestructura local.',
+    chichi:'El cable que llega hasta tu rancho. El más caro porque cada barrio tiene los suyos.' },
+  { key:'Cv', nombre:'Comercialización',pct:13, color:'var(--Cv)', sigla:'Cv',
+    desc:'Los costos administrativos del operador: facturación, atención al cliente, medición y lectura del contador.',
+    chichi:'Lo que cobra el man que te manda el recibo por hacer el favor de mandártelo.' },
+  { key:'PR', nombre:'Pérdidas',        pct:7,  color:'var(--PR)', sigla:'PR',
+    desc:'La energía que se pierde en la red por conexiones ilegales, fraude y pérdidas técnicas. Tú pagas lo que otros se roban.',
+    chichi:'La luz que se roban los vecinos "creativos" — y la pagamos todos, cómo es la vaina.' },
+  { key:'R',  nombre:'Restricciones',   pct:3,  color:'var(--R)',  sigla:'R',
+    desc:'Costos operativos cuando el sistema eléctrico tiene cuellos de botella y hay que tomar medidas de emergencia.',
+    chichi:'Cuando la red se tranca y hay que hacer marometas técnicas pa\' que no se vaya la luz.' },
+];
+
+// Tarifas base CU por operador ($/kWh estimado 2025-2026, referencial)
+const TARIFAS_BASE = {
+  EPM: 820, AFINIA: 950, CELSIA: 870, ENERCA: 780,
+  CHEC: 800, CENS: 830, ELECTROHUILA: 790, EMCALI: 810,
+  ESSA: 840, ENEL: 900
+};
+
+// Factores de subsidio/contribución
+const FACTOR_ESTRATO = {
+  '1': 0.40, '2': 0.50, '3': 0.85, '4': 1.0,
+  '5': 1.20, '6': 1.20, 'I': 1.20
+};
+const LABEL_ESTRATO = {
+  '1':'Estrato 1 (subsidio 60%)','2':'Estrato 2 (subsidio 50%)',
+  '3':'Estrato 3 (subsidio 15%)','4':'Estrato 4 (tarifa plena)',
+  '5':'Estrato 5 (contribución +20%)','6':'Estrato 6 (contribución +20%)',
+  'I':'Industrial/Comercial (+20%)'
+};
+
+// ─── TABS ─────────────────────────────────────────────────────────────
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active', ['calcular','explicar'][i]===t));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+}
+
+// ─── CALCULAR ─────────────────────────────────────────────────────────
+function calcular() {
+  const kwh = parseFloat(document.getElementById('kwh').value);
+  const estrato = document.getElementById('estrato').value;
+  const operador = document.getElementById('operador').value;
+
+  if (!kwh || kwh <= 0) {
+    alert('Ingresá el consumo en kWh de tu recibo, parce.');
+    return;
+  }
+
+  const cuBase = TARIFAS_BASE[operador];
+  const factor = FACTOR_ESTRATO[estrato];
+  const cuFinal = Math.round(cuBase * factor);
+  const totalCOP = Math.round(cuFinal * kwh);
+
+  // Mostrar CU
+  document.getElementById('r-cu').textContent = cuFinal.toLocaleString('es-CO');
+  document.getElementById('r-total').textContent = `≈ $${totalCOP.toLocaleString('es-CO')} en el mes`;
+
+  // Breakdown
+  const list = document.getElementById('breakdown-list');
+  list.innerHTML = '';
+  COMPONENTES.forEach(c => {
+    const cop = Math.round(totalCOP * c.pct / 100);
+    const div = document.createElement('div');
+    div.className = 'bk-item';
+    div.innerHTML = `
+      <div class="bk-header">
+        <span class="bk-name" style="color:${c.color}">${c.sigla} — ${c.nombre}</span>
+        <span class="bk-pct">${c.pct}%</span>
+      </div>
+      <div class="bk-bar-bg"><div class="bk-bar" data-w="${c.pct}" style="background:${c.color}"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span class="bk-explain">${c.chichi}</span>
+        <span class="bk-cop" style="color:${c.color};white-space:nowrap;margin-left:.5rem">$${cop.toLocaleString('es-CO')}</span>
+      </div>`;
+    list.appendChild(div);
+  });
+
+  // Animar barras
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.bk-bar').forEach(b => {
+      b.style.width = b.dataset.w + '%';
+    });
+  });
+
+  // Resumen texto
+  const estLabel = LABEL_ESTRATO[estrato];
+  const operLabel = document.getElementById('operador').selectedOptions[0].text;
+  document.getElementById('resumen-texto').innerHTML =
+    `Con un consumo de <strong>${kwh} kWh</strong> en <strong>${operLabel}</strong> para <strong>${estLabel}</strong>, 
+    tu tarifa estimada es de <strong>$${cuFinal.toLocaleString('es-CO')}/kWh</strong>.<br/><br/>
+    De tu recibo de aproximadamente <strong>$${totalCOP.toLocaleString('es-CO')}</strong>, 
+    el pedazo más gordo se lo lleva <strong>Distribución ($${Math.round(totalCOP*.40).toLocaleString('es-CO')})</strong> — 
+    esos son los postes y cables de tu barrio. 
+    El segundo es <strong>Generación ($${Math.round(totalCOP*.30).toLocaleString('es-CO')})</strong>.
+    Y ojo: <strong>$${Math.round(totalCOP*.07).toLocaleString('es-CO')}</strong> los pagás vos 
+    por energía que otros se roban o se pierde en la red. Así es la vaina, parce.`;
+
+  window._ultimoResultado = { kwh, cuFinal, totalCOP, estLabel, operLabel };
+
+  document.getElementById('resultado').classList.add('show');
+  document.getElementById('resultado').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function resetear() {
+  document.getElementById('resultado').classList.remove('show');
+  document.getElementById('kwh').value = '';
+  window.scrollTo({ top: 0, behavior:'smooth' });
+}
+
+// ─── COMPARTIR ────────────────────────────────────────────────────────
+function textoCompartir() {
+  const r = window._ultimoResultado;
+  if (!r) return '';
+  return `⚡ *¿Por qué pago tanto de luz?*\n\n` +
+    `Consumo: ${r.kwh} kWh\nOperador: ${r.operLabel}\nEstrato: ${r.estLabel}\n\n` +
+    `💰 Tarifa CU estimada: $${r.cuFinal.toLocaleString('es-CO')}/kWh\n` +
+    `📋 Total mes: ≈ $${r.totalCOP.toLocaleString('es-CO')}\n\n` +
+    `Distribución (postes/cables): 40%\nGeneración (producir la luz): 30%\nComercialización (el recibo): 13%\n` +
+    `Transmisión (cables nacionales): 7%\nPérdidas (lo que se roban): 7%\nRestricciones: 3%\n\n` +
+    `Calculado con la fórmula oficial CU — CREG Colombia\n_Vibras Positivas HM_`;
+}
+function compartirWA() {
+  window.open('https://wa.me/?text=' + encodeURIComponent(textoCompartir()), '_blank');
+}
+function copiarTexto() {
+  navigator.clipboard.writeText(textoCompartir()).then(() => alert('¡Copiado! Pegalo donde quieras.'));
+}
+
+// ─── EXPLICADOR ───────────────────────────────────────────────────────
+function renderExplicador() {
+  const grid = document.getElementById('comp-grid');
+  COMPONENTES.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'comp-card';
+    div.style.borderLeftColor = c.color;
+    div.innerHTML = `
+      <div class="comp-header">
+        <span class="comp-sigla" style="color:${c.color}">${c.sigla}</span>
+        <span class="comp-pct-badge">${c.pct}%</span>
+      </div>
+      <div class="comp-full">${c.nombre}</div>
+      <div class="comp-desc">${c.desc}</div>
+      <div class="comp-chichi" style="color:${c.color}">😄 "${c.chichi}"</div>`;
+    grid.appendChild(div);
+  });
+
+  const faqs = [
+    { p:'¿Por qué si hay tanto río en Colombia la luz es tan cara?',
+      r:'La generación solo es el 30% del recibo. El resto — distribución, comercialización, pérdidas — son costos que no dependen de cuánta agua haya en las represas.' },
+    { p:'¿El gobierno puede bajar la tarifa de un día para otro?',
+      r:'No fácilmente. La mayoría de componentes son contratos privados regulados por la CREG. El gobierno puede subsidiar (estratos 1-3) pero no puede eliminar los costos reales.' },
+    { p:'¿Qué son las "pérdidas" y por qué las pago yo?',
+      r:'Son conexiones ilegales ("palomillas"), fraude y pérdidas técnicas de la red. El operador distribuye ese costo entre todos los usuarios legales. Mientras más fraude haya en tu zona, más pagas.' },
+    { p:'¿Por qué Afinia cobra más que EPM?',
+      r:'Por eficiencia operativa, nivel de pérdidas, inversión en infraestructura y geografía de la zona atendida. Afinia opera zonas con más pérdidas históricas.' },
+  ];
+
+  const faqList = document.getElementById('faq-list');
+  faqs.forEach(f => {
+    const div = document.createElement('div');
+    div.style.cssText = 'border-left:2px solid var(--border);padding-left:.8rem;';
+    div.innerHTML = `<div style="font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.3rem;">❓ ${f.p}</div>
+      <div style="font-size:.78rem;color:var(--text-dim);line-height:1.5;">${f.r}</div>`;
+    faqList.appendChild(div);
+  });
+}
+renderExplicador();
+
+// ─── SPLASH ───────────────────────────────────────────────────────────
+setTimeout(() => document.getElementById('splash').classList.add('hide'), 2000);
+
+// ─── OFFLINE ──────────────────────────────────────────────────────────
+window.addEventListener('online',  () => document.body.classList.remove('offline'));
+window.addEventListener('offline', () => document.body.classList.add('offline'));
+if (!navigator.onLine) document.body.classList.add('offline');
+
+// ─── SW ───────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
