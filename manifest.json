@@ -1,0 +1,14 @@
+{
+  "name": "¿Por qué pago tanto de luz?",
+  "short_name": "Tarifa CU",
+  "description": "Calculadora oficial CU de energía eléctrica en Colombia — CREG",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0f1e",
+  "theme_color": "#FFD700",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "https://via.placeholder.com/192x192/0a0f1e/FFD700?text=%E2%9A%A1", "sizes": "192x192", "type": "image/png" },
+    { "src": "https://via.placeholder.com/512x512/0a0f1e/FFD700?text=%E2%9A%A1", "sizes": "512x512", "type": "image/png" }
+  ]
+}
